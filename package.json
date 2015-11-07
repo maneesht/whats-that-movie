@@ -1,0 +1,24 @@
+{
+  "name": "b0xr",
+  "version": "0.0.1",
+  "description": "Welcome to b0xr",
+  "main": "index.js",
+  "dependencies": {
+    "express": "^4.13.3",
+    "gulp": "^3.9.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/maneesht/b0xr.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/maneesht/b0xr/issues"
+  },
+  "homepage": "https://github.com/maneesht/b0xr#readme"
+}

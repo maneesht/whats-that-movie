@@ -1,0 +1,22 @@
+{
+  "name": "b0xr",
+  "version": "0.0.1",
+  "homepage": "https://github.com/maneesht/b0xr",
+  "authors": [
+    "Maneesh Tewani <mtewani@purdue.edu>"
+  ],
+  "description": "",
+  "main": "",
+  "moduleType": [],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "angular": "~1.4.7"
+  }
+}
