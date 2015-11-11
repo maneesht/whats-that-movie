@@ -2,3 +2,10 @@ www-build
 www/lib
 node_modules
 uploads
+.gradle
+/local.properties
+/.idea/workspace.xml
+/.idea/libraries
+.DS_Store
+/build
+/captures
