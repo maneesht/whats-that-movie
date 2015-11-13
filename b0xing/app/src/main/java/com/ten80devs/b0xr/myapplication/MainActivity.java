@@ -7,14 +7,20 @@ import android.os.Environment;
 import android.provider.MediaStore;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ArrayAdapter;
+import android.widget.ListAdapter;
+import android.widget.ListView;
 
 import java.io.File;
 import java.io.IOError;
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.Random;
 
@@ -22,12 +28,18 @@ public class MainActivity extends AppCompatActivity {
 
     private static final int REQUEST_IMAGE_CAPTURE = 1;
     private static final int REQUEST_TAKE_PHOTO = 1;
+    private ArrayList<String> values = new ArrayList<String>();
+    private ArrayAdapter<String> adapter;
+    private String mCurrentPhotoPath;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        // dispatchTakePictureIntent();
+
+        final ListView listView = (ListView) findViewById(R.id.listView);
+        adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, values);
+        listView.setAdapter(adapter);
     }
 
     @Override
@@ -67,10 +79,10 @@ public class MainActivity extends AppCompatActivity {
             }
         }
     }
-    String mCurrentPhotoPath;
+
     private File createImageFile() throws IOException {
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-        String imageFileName = "TEST" + new Random().nextInt();
+        String imageFileName = "TEST" + timeStamp;
         File storageDir = Environment.getExternalStoragePublicDirectory(
                 Environment.DIRECTORY_PICTURES);
         File image = File.createTempFile(
@@ -80,5 +92,12 @@ public class MainActivity extends AppCompatActivity {
         );
         mCurrentPhotoPath = "file: " + image.getAbsolutePath();
         return image;
+    }
+
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if(requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
+            values.add(mCurrentPhotoPath);
+            adapter.notifyDataSetChanged();
+        }
     }
 }
