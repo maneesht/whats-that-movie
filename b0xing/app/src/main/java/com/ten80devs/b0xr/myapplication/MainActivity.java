@@ -90,12 +90,22 @@ public class MainActivity extends AppCompatActivity {
                 ".jpg",
                 storageDir
         );
-        mCurrentPhotoPath = "file: " + image.getAbsolutePath();
+        mCurrentPhotoPath = image.getAbsolutePath();
         return image;
+    }
+
+    private void galleryAddPic() {
+        Intent intent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
+        File f = new File(mCurrentPhotoPath);
+        Uri contentUri = Uri.fromFile(f);
+        intent.setData(contentUri);
+        Log.d("DEBUG APP", intent.getDataString());
+        this.sendBroadcast(intent);
     }
 
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if(requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
+            galleryAddPic();
             values.add(mCurrentPhotoPath);
             adapter.notifyDataSetChanged();
         }
