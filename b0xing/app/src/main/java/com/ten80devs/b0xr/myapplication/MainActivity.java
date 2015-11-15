@@ -11,14 +11,25 @@ import android.provider.MediaStore;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.support.design.widget.CoordinatorLayout;
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.ArrayAdapter;
+import android.widget.ListAdapter;
+import android.widget.ListView;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Random;
 
 public class MainActivity extends AppCompatActivity {
@@ -26,18 +37,17 @@ public class MainActivity extends AppCompatActivity {
     File photoFile = null;
     private static final int REQUEST_IMAGE_CAPTURE = 1;
     private static final int REQUEST_TAKE_PHOTO = 1;
+    private List<String> values = new ArrayList<String>();
+    private ArrayAdapter<String> adapter;
+    private String mCurrentPhotoPath;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        int permissionCheck = ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE);
-        if (permissionCheck != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
-                    MY_PERMISSIONS_REQUEST_WRITE);
-        } else {
-            dispatchTakePictureIntent();
-        }
+        final ListView listView = (ListView) findViewById(R.id.listView);
+        adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, values);
+        listView.setAdapter(adapter);
     }
 
     @Override
@@ -61,26 +71,18 @@ public class MainActivity extends AppCompatActivity {
 
         return super.onOptionsItemSelected(item);
     }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
-        switch (requestCode) {
-            case MY_PERMISSIONS_REQUEST_WRITE:
-                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    dispatchTakePictureIntent();
-                }
-
-        }
-    }
-
-    public void dispatchTakePictureIntent() {
-
+    public void dispatchTakePictureIntent(View view) {
+        int permissionCheck = ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE);
         Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
             try {
+                if (permissionCheck != PackageManager.PERMISSION_GRANTED) {
+                    ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                            MY_PERMISSIONS_REQUEST_WRITE);
+                }
                 photoFile = createImageFile();
-            } catch (Exception e) {
-                e.printStackTrace();
+            } catch (IOException ie) {
+                makeSnackbar("Could not save file. Please allow access");
             }
             if (photoFile != null) {
                 takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT,
@@ -90,11 +92,9 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    String mCurrentPhotoPath;
-
     private File createImageFile() throws IOException {
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-        String imageFileName = "TEST" + new Random().nextInt();
+        String imageFileName = "TEST" + timeStamp;
         File storageDir = Environment.getExternalStoragePublicDirectory(
                 Environment.DIRECTORY_PICTURES);
         File image = File.createTempFile(
@@ -102,7 +102,28 @@ public class MainActivity extends AppCompatActivity {
                 ".jpg",
                 storageDir
         );
-        mCurrentPhotoPath = "file: " + image.getAbsolutePath();
+        mCurrentPhotoPath = image.getAbsolutePath();
         return image;
+    }
+
+    private void galleryAddPic() {
+        Intent intent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
+        File f = new File(mCurrentPhotoPath);
+        Uri contentUri = Uri.fromFile(f);
+        intent.setData(contentUri);
+        Log.d("DEBUG APP", intent.getDataString());
+        this.sendBroadcast(intent);
+    }
+
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if(requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
+            galleryAddPic();
+            values.add(mCurrentPhotoPath);
+            adapter.notifyDataSetChanged();
+            makeSnackbar("Image Save");
+        }
+    }
+    public void makeSnackbar(String message ) {
+        Snackbar.make(findViewById(R.id.snackbar_location), message, Snackbar.LENGTH_SHORT).show();
     }
 }
