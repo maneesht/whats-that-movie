@@ -6,6 +6,8 @@ import android.net.Uri;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.os.Bundle;
+import android.support.design.widget.CoordinatorLayout;
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Menu;
@@ -108,6 +110,7 @@ public class MainActivity extends AppCompatActivity {
             galleryAddPic();
             values.add(mCurrentPhotoPath);
             adapter.notifyDataSetChanged();
+            Snackbar.make(findViewById(R.id.snackbar_location), "Image Save", Snackbar.LENGTH_SHORT).show();
         }
     }
 }
